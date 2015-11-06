@@ -42,8 +42,26 @@ public class Edge {
         this.flow = flow;
     }
 
+    /**
+     * Returns the difference between the capacity and the flow.
+     * @return The difference between the capacity and the flow.
+     */
+    public int getCapacityFlowDifference(){
+        return capacity - flow;
+    }
+
+    /**
+     * Returns the residual edge of the current edge.
+     * @return The residual edge of the current edge.
+     */
+    public Edge getResidualEdge(){
+        return (new Edge(fromNode, toNode, getCapacityFlowDifference()));
+    }
+
     @Override
     public String toString() {
         return "Edge  >  from = [" + fromNode.getName() + "], to = [" + toNode.getName() + "], capacity = " + capacity + ", flow=" + flow;
     }
+
+
 }

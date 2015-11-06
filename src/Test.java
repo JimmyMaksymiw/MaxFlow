@@ -1,12 +1,17 @@
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+
 
 /**
  * @author Jimmy Maksymiw
  */
 public class Test {
     public static void main(String[] args) {
+        HashMap<Node, LinkedList<Edge>> fromNodesWithEdges = new HashMap<>();
+
         Node a = new Node("a");
         Node b = new Node("b");
         Node c = new Node("c");
@@ -15,33 +20,27 @@ public class Test {
         Node e = new Node("e");
         Node f = new Node("f");
 
-        ArrayList<Node> nodes = new ArrayList<>();
-        nodes.add(a);
-        nodes.add(b);
-        nodes.add(c);
-        nodes.add(d);
-        nodes.add(e);
-        nodes.add(f);
+        LinkedList<Edge> a1 = new LinkedList<>();
+        a1.add(new Edge(a, d, 3));
+        a1.add(new Edge(a, f, 4));
+
+        LinkedList<Edge> b1 = new LinkedList<>();
+        b1.add(new Edge(b, d, 6));
+        b1.add(new Edge(b, e, 4));
+
+        LinkedList<Edge> c1 = new LinkedList<>();
+        c1.add(new Edge(c, f, 1));
+        c1.add(new Edge(c, e, 5));
+
+        fromNodesWithEdges.put(a, a1);
+        fromNodesWithEdges.put(b, b1);
+        fromNodesWithEdges.put(c, c1);
+
+        Graph graph = new Graph(fromNodesWithEdges);
+        new MaxFlowFordFulkerson(graph);
 
 
-        Edge a1 = new Edge(a, d, 3);
-        Edge a2 = new Edge(a, f, 4);
-
-        Edge b1 = new Edge(b, d, 6);
-        Edge b2 = new Edge(b, e, 4);
-
-        Edge c1 = new Edge(c, f, 1);
-        Edge c2 = new Edge(c, e, 5);
-
-        ArrayList<Edge> edges = new ArrayList<>();
-        edges.add(a1);
-        edges.add(a2);
-        edges.add(b1);
-        edges.add(b2);
-        edges.add(c1);
-        edges.add(c2);
-
-        Graph graph = new Graph(nodes, edges);
+//        graph.printGraph();
 
 //        MaxFlowFordFulkerson maxFlowFordFulkerson = new MaxFlowFordFulkerson (graph, source , sink);
 
