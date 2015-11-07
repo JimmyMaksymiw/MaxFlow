@@ -4,12 +4,14 @@ import java.util.LinkedList;
 
 
 /**
+ * Class that is used to test Bipartite matching via maxflow.
  * @author Jimmy Maksymiw & Kalle Bornemark
  */
 public class TestMaximumMatch {
     public static void main(String[] args) {
         HashMap<Node, LinkedList<Edge>> fromNodesWithEdges = new HashMap<>();
 
+        // Nodes
         Node a = new Node("a");
         Node b = new Node("b");
         Node c = new Node("c");
@@ -22,6 +24,7 @@ public class TestMaximumMatch {
         Node i = new Node("i");
         Node j = new Node("j");
 
+        // Edges between the nodes.
         LinkedList<Edge> a1 = new LinkedList<>();
         a1.add(new Edge(a, f));
         a1.add(new Edge(a, g));
@@ -45,16 +48,13 @@ public class TestMaximumMatch {
         e1.add(new Edge(e, i));
         e1.add(new Edge(e, j));
 
-
         fromNodesWithEdges.put(a, a1);
         fromNodesWithEdges.put(b, b1);
         fromNodesWithEdges.put(c, c1);
         fromNodesWithEdges.put(d, d1);
         fromNodesWithEdges.put(e, e1);
 
-        Graph graph = new Graph(fromNodesWithEdges);
-        graph.printGraph();
-        graph.maxFlowFordFulkersson();
-        graph.printMaximumMatching();
+        //creates the graph.
+        new Graph(fromNodesWithEdges);
     }
 }
