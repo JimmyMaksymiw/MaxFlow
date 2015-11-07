@@ -1,34 +1,41 @@
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
 /**
- * @author Jimmy Maksymiw
+ * @author Jimmy Maksymiw & Kalle Bornemark
  */
 public class Graph {
     private HashMap<Node, LinkedList<Edge>> nodesWithEdges;
     private Node source;
     private Node sink;
 
+    /**
+     *
+     */
     public Graph() {
         this.nodesWithEdges = new HashMap<>();
     }
 
+    /**
+     *
+     * @param nodesWithEdges
+     */
     public Graph(HashMap<Node, LinkedList<Edge>> nodesWithEdges) {
         this.nodesWithEdges = nodesWithEdges;
 
         // Check if graph is bipartit
         if (isBipartite()) {
-            System.out.println("The graph is bipartite");
+            System.out.println("The graph is bipartite!\n");
+
             source = new Node("source");
             sink = new Node("sink");
 
             // Connect source node with nodes
             LinkedList<Edge> sourceEdges = new LinkedList<>();
             for (Map.Entry<Node, LinkedList<Edge>> entry : nodesWithEdges.entrySet()) {
-                sourceEdges.add(new Edge(source, entry.getKey(), 1));
-                System.out.println("Adding edge from " + source + " to " + entry.getKey());
+                sourceEdges.add(new Edge(source, entry.getKey()));
+//                System.out.println("Adding edge from " + source + " to " + entry.getKey());
             }
             nodesWithEdges.put(source, sourceEdges);
 
@@ -41,30 +48,50 @@ public class Graph {
                     for (Edge edge : nodeEdges) {
                         edges = new LinkedList<>();
                         if (!nodesWithEdges.containsKey(edge.getToNode())) {
-                            edges.add(new Edge(edge.getToNode(), sink, 1));
-                            nodesWithEdges.put(edge.getToNode(), edges);;
-                            System.out.println("Adding edge from " + edge.getToNode() + " to " + sink);
+                            edges.add(new Edge(edge.getToNode(), sink));
+                            nodesWithEdges.put(edge.getToNode(), edges);
+//                            System.out.println("Adding edge from " + edge.getToNode() + " to " + sink);
                         }
                     }
                 }
             }
-
-        // Not bipartite
+            // Not bipartite
         } else {
             System.out.println("The graph is not bipartite");
         }
     }
 
+    /**
+     *
+     */
     public void printGraph() {
         System.out.println("-- Printing graph --");
         for (Map.Entry<Node, LinkedList<Edge>> entry : nodesWithEdges.entrySet()) {
-            for (Edge edges : entry.getValue()) {
-                System.out.println(edges);
+            for (Edge edge : entry.getValue()) {
+                if (edge.getFromNode().getName() != "source" && edge.getToNode().getName() != "sink") {
+                    System.out.println(edge);
+                }
+            }
+        }
+        System.out.println("---------------------\n");
+    }
+
+    public void printMaximumMatching(){
+        LinkedList<Edge> list = getEdgesWithFlow();
+
+        System.out.println("-- Maximum matching --");
+        for (Edge edge : list) {
+            if (edge.getFromNode().getName() != "source" && edge.getToNode().getName() != "sink") {
+                System.out.println(edge);
             }
         }
         System.out.println("---------------------");
     }
 
+    /**
+     *
+     * @return
+     */
     private boolean isBipartite() {
         LinkedList<Node> allNodes = new LinkedList<>();
 
@@ -73,7 +100,7 @@ public class Graph {
             allNodes.add(entry.getKey());
         }
 
-        // Jämför nod-values
+        // Jï¿½mfï¿½r nod-values
         for (Map.Entry<Node, LinkedList<Edge>> entry : nodesWithEdges.entrySet()) {
             for (Edge e : entry.getValue()) {
                 if (allNodes.contains(e.getToNode())) {
@@ -85,32 +112,168 @@ public class Graph {
         return true;
     }
 
-/*    public Graph getResidualGraph() {
+    /**
+     *
+     * @param path
+     * @param flow
+     */
+    public void addFlowToPath(LinkedList<Edge> path, int flow) {
+        for (Edge e : path) {
+            for (Edge neighbourEdge : nodesWithEdges.get(e.getFromNode())) {
+                if (neighbourEdge.getToNode().equals(e.getToNode())) {
+                    neighbourEdge.addFlow(flow);
+                }
+            }
+            //The sink node does not exist in the HashMap null-checker is necessary
+            if (nodesWithEdges.get(e.getToNode()) != null) {
+                for (Edge neighbourEdge : nodesWithEdges.get(e.getToNode())) {
+                    if (neighbourEdge.getToNode().equals(e.getFromNode())) {
+                        neighbourEdge.addFlow(-flow);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     * @param edge
+     */
+    private void addEdge(Edge edge) {
+        if (nodesWithEdges.containsKey(edge.getFromNode())) {
+            nodesWithEdges.get(edge.getFromNode()).add(edge);
+        } else {
+            LinkedList<Edge> l = new LinkedList<Edge>();
+            l.add(edge);
+            nodesWithEdges.put(edge.getFromNode(), l);
+        }
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Graph getResidualGraph() {
         Graph g = new Graph();
 
-        for (Map.Entry<Node, LinkedList<Edge>> entry : adjacencySet) {
-            LinkedList<Edge> adjacencyEdges = new LinkedList<Edge>();
-
+        for (Map.Entry<Node, LinkedList<Edge>> entry : nodesWithEdges.entrySet()) {
             for (Edge e : entry.getValue()) {
-                if (e.getCapacityFlowDifference() != 0)
+                if (e.getCapacity() - e.getFlow() != 0)
                     g.addEdge(e.getResidualEdge());
                 if (e.getFlow() != 0)
                     g.addEdge(e.getAntiParallelEdge());
+
             }
         }
-        g.generateAdjacencySet();
 
         return g;
-    }*/
+    }
 
+    /**
+     *
+     * @return
+     */
+    public LinkedList<Edge> getEdgesWithFlow() {
+        LinkedList<Edge> edgeList = new LinkedList<Edge>();
+        for (Map.Entry<Node, LinkedList<Edge>> entry : nodesWithEdges.entrySet()) {
+            for (Edge e : entry.getValue()) {
+                if (e.getFlow() > 0)
+                    edgeList.add(e);
+            }
+        }
+        return edgeList;
+    }
+
+    /**
+     *
+     * @param source
+     * @param sink
+     * @return
+     */
+    public LinkedList<Edge> findAugmentingPath(Node source, Node sink) {
+        LinkedList<Node> visitedNodes = new LinkedList<>();
+        LinkedList<Edge> edgesInPath = new LinkedList<>();
+        findAugmentingPath(source, sink, visitedNodes, edgesInPath);
+        return edgesInPath;
+    }
+
+    /**
+     *
+     * @param current
+     * @param sink
+     * @param visitedNodes
+     * @param edgesInPath
+     * @return
+     */
+    private boolean findAugmentingPath(Node current, Node sink, LinkedList<Node> visitedNodes, LinkedList<Edge> edgesInPath) {
+        visitedNodes.add(current);
+        if (current.equals(sink)) {
+            return true;
+        } else {
+            LinkedList<Edge> neighbourEdges = getNodesWithEdges().get(current);
+            if (neighbourEdges != null) {
+                for (Edge e : neighbourEdges) {
+                    if (!visitedNodes.contains(e.getToNode())) {
+                        if (findAugmentingPath(e.getToNode(), sink, visitedNodes, edgesInPath)) {
+                            edgesInPath.add(e);
+//                            System.out.println("Adding " + e + " to path");
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     *
+     */
+    public void setAllEdgesToZero() {
+        for (Map.Entry<Node, LinkedList<Edge>> entry : nodesWithEdges.entrySet()) {
+            for (Edge e : entry.getValue()) {
+
+                e.setFlow(0);
+            }
+        }
+    }
+
+    public void maxFlowFordFulkersson(){
+        setAllEdgesToZero();
+        Node source = getSource();
+        Node sink = getSink();
+
+        Graph residualGraph = getResidualGraph();
+        LinkedList<Edge> edgesInAugmentingPath = residualGraph.findAugmentingPath(source, sink);
+
+        while (edgesInAugmentingPath.size() > 0) {
+
+            addFlowToPath(edgesInAugmentingPath, 1);
+            residualGraph = getResidualGraph();
+            edgesInAugmentingPath = residualGraph.findAugmentingPath(source, sink);
+        }
+    }
+
+    /**
+     *
+     * @return
+     */
     public HashMap<Node, LinkedList<Edge>> getNodesWithEdges() {
         return nodesWithEdges;
     }
 
+    /**
+     *
+     * @return
+     */
     public Node getSink() {
         return sink;
     }
 
+    /**
+     *
+     * @return
+     */
     public Node getSource() {
         return source;
     }

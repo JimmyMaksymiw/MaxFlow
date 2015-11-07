@@ -1,7 +1,7 @@
 
 
 /**
- * @author Jimmy Maksymiw
+ * @author Jimmy Maksymiw & Kalle Bornemark
  */
 public class Edge {
     private Node fromNode;
@@ -9,6 +9,24 @@ public class Edge {
     private int capacity;
     private int flow;
 
+    /**
+     *
+     * @param startNode
+     * @param stopNode
+     */
+    public Edge(Node startNode, Node stopNode) {
+        this.fromNode = startNode;
+        this.toNode = stopNode;
+        this.capacity = 1;
+        this.flow = 0;
+    }
+
+    /**
+     *
+     * @param startNode
+     * @param stopNode
+     * @param capacity
+     */
     public Edge(Node startNode, Node stopNode, int capacity) {
         this.fromNode = startNode;
         this.toNode = stopNode;
@@ -16,51 +34,85 @@ public class Edge {
         this.flow = 0;
     }
 
+    /**
+     *
+     * @return
+     */
     public Node getFromNode() {
         return fromNode;
     }
 
-
+    /**
+     *
+     * @return
+     */
     public Node getToNode() {
         return toNode;
     }
 
-
+    /**
+     *
+     * @return
+     */
     public int getCapacity() {
         return capacity;
     }
 
+    /**
+     *
+     * @param capacity
+     */
     public void setCapacity(int capacity) {
         this.capacity = capacity;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getFlow() {
         return flow;
     }
 
+    /**
+     *
+     * @param flow
+     */
     public void setFlow(int flow) {
         this.flow = flow;
     }
 
     /**
-     * Returns the difference between the capacity and the flow.
-     * @return The difference between the capacity and the flow.
+     *
+     * @param flow
      */
-    public int getCapacityFlowDifference(){
-        return capacity - flow;
+    public void addFlow(int flow) {
+        this.flow += flow;
     }
 
     /**
-     * Returns the residual edge of the current edge.
-     * @return The residual edge of the current edge.
+     *
+     * @return
      */
-    public Edge getResidualEdge(){
-        return (new Edge(fromNode, toNode, getCapacityFlowDifference()));
+    public Edge getResidualEdge() {
+        return (new Edge(fromNode, toNode, (capacity - flow)));
     }
 
+    /**
+     *
+     * @return
+     */
+    public Edge getAntiParallelEdge() {
+        return (new Edge(toNode, fromNode, flow));
+    }
+
+    /**
+     *
+     * @return
+     */
     @Override
     public String toString() {
-        return "Edge  >  from = [" + fromNode.getName() + "], to = [" + toNode.getName() + "], capacity = " + capacity + ", flow=" + flow;
+        return "[" + fromNode.getName() + "] > [" + toNode.getName() + "], flow/capacity = " + flow + "/" + capacity;
     }
 
 
