@@ -6,7 +6,7 @@ import java.util.LinkedList;
 /**
  * @author Jimmy Maksymiw & Kalle Bornemark
  */
-public class Test {
+public class TestMaximumMatch {
     public static void main(String[] args) {
         HashMap<Node, LinkedList<Edge>> fromNodesWithEdges = new HashMap<>();
 

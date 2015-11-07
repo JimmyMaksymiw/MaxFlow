@@ -57,7 +57,7 @@ public class Graph {
             }
             // Not bipartite
         } else {
-            System.out.println("The graph is not bipartite");
+            System.out.println("The graph is not bipartite!\n");
         }
     }
 
@@ -76,15 +76,20 @@ public class Graph {
         System.out.println("---------------------\n");
     }
 
+    /**
+     *
+     */
     public void printMaximumMatching(){
         LinkedList<Edge> list = getEdgesWithFlow();
-
         System.out.println("-- Maximum matching --");
+        int totalEdges=0;
         for (Edge edge : list) {
             if (edge.getFromNode().getName() != "source" && edge.getToNode().getName() != "sink") {
                 System.out.println(edge);
+                totalEdges++;
             }
         }
+        System.out.println("Total edges: " + totalEdges);
         System.out.println("---------------------");
     }
 
@@ -118,16 +123,16 @@ public class Graph {
      * @param flow
      */
     public void addFlowToPath(LinkedList<Edge> path, int flow) {
-        for (Edge e : path) {
-            for (Edge neighbourEdge : nodesWithEdges.get(e.getFromNode())) {
-                if (neighbourEdge.getToNode().equals(e.getToNode())) {
+        for (Edge edge : path) {
+            for (Edge neighbourEdge : nodesWithEdges.get(edge.getFromNode())) {
+                if (neighbourEdge.getToNode().equals(edge.getToNode())) {
                     neighbourEdge.addFlow(flow);
                 }
             }
-            //The sink node does not exist in the HashMap null-checker is necessary
-            if (nodesWithEdges.get(e.getToNode()) != null) {
-                for (Edge neighbourEdge : nodesWithEdges.get(e.getToNode())) {
-                    if (neighbourEdge.getToNode().equals(e.getFromNode())) {
+
+            if (nodesWithEdges.get(edge.getToNode()) != null) {
+                for (Edge neighbourEdge : nodesWithEdges.get(edge.getToNode())) {
+                    if (neighbourEdge.getToNode().equals(edge.getFromNode())) {
                         neighbourEdge.addFlow(-flow);
                     }
                 }
@@ -155,9 +160,11 @@ public class Graph {
      */
     public Graph getResidualGraph() {
         Graph g = new Graph();
-
+        g.setSource(getSource());
+        g.setSink(getSink());
         for (Map.Entry<Node, LinkedList<Edge>> entry : nodesWithEdges.entrySet()) {
             for (Edge e : entry.getValue()) {
+
                 if (e.getCapacity() - e.getFlow() != 0)
                     g.addEdge(e.getResidualEdge());
                 if (e.getFlow() != 0)
@@ -232,12 +239,15 @@ public class Graph {
     public void setAllEdgesToZero() {
         for (Map.Entry<Node, LinkedList<Edge>> entry : nodesWithEdges.entrySet()) {
             for (Edge e : entry.getValue()) {
-
                 e.setFlow(0);
             }
         }
     }
 
+
+    /**
+     *
+     */
     public void maxFlowFordFulkersson(){
         setAllEdgesToZero();
         Node source = getSource();
@@ -246,9 +256,15 @@ public class Graph {
         Graph residualGraph = getResidualGraph();
         LinkedList<Edge> edgesInAugmentingPath = residualGraph.findAugmentingPath(source, sink);
 
+        int minflow = Integer.MAX_VALUE;
         while (edgesInAugmentingPath.size() > 0) {
+            for (Edge e : edgesInAugmentingPath) {
+                if (e.getCapacity() < minflow) {
+                    minflow = e.getCapacity();
+                }
+            }
 
-            addFlowToPath(edgesInAugmentingPath, 1);
+            addFlowToPath(edgesInAugmentingPath, minflow);
             residualGraph = getResidualGraph();
             edgesInAugmentingPath = residualGraph.findAugmentingPath(source, sink);
         }
@@ -276,5 +292,21 @@ public class Graph {
      */
     public Node getSource() {
         return source;
+    }
+
+    /**
+     *
+     * @param source
+     */
+    public void setSource(Node source) {
+        this.source = source;
+    }
+
+    /**
+     *
+     * @param sink
+     */
+    public void setSink(Node sink) {
+        this.sink = sink;
     }
 }
