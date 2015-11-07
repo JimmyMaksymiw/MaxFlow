@@ -1,6 +1,5 @@
 /**
  * Class that represent a node in a graph.
- *
  * @author Jimmy Maksymiw & Kalle Bornemark
  */
 public class Node {
@@ -23,7 +22,7 @@ public class Node {
     }
 
     /**
-     *  Returns a String with the name of the Node.
+     * Returns a String with the name of the Node.
      * @return A String with the name.
      */
     @Override
@@ -33,7 +32,7 @@ public class Node {
 
     /**
      * Checks if the name of the node is equal to the provided object.
-     * @param obj
+     * @param obj The object to be compared.
      * @return true if the names are the same otherwise false.
      */
     @Override

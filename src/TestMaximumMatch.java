@@ -1,10 +1,8 @@
-
 import java.util.HashMap;
 import java.util.LinkedList;
 
-
 /**
- * Class that is used to test Bipartite matching via maxflow.
+ * Class that is used to test Bipartite matching via Maxflow.
  * @author Jimmy Maksymiw & Kalle Bornemark
  */
 public class TestMaximumMatch {

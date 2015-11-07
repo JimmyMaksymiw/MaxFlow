@@ -3,6 +3,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 /**
+ * Represents a graph with nodes and edges.
  * @author Jimmy Maksymiw & Kalle Bornemark
  */
 public class Graph {
@@ -11,18 +12,22 @@ public class Graph {
     private Node sink;
 
     /**
-     *
+     * Creates a new empty graph.
      */
     public Graph() {
         this.nodesWithEdges = new HashMap<>();
     }
 
     /**
-     *
-     * @param nodesWithEdges
+     * Creates a new graph based on the provided nodes and edges.
+     * Prints the graph, then check whether or not the graph is bipartite.
+     * If it is, creates the source and sink nodes and connects them with the nodes in the graph.
+     * Then runs the Ford Fulkerson algorithm on the graph, then prints its maximum matching edges.
+     * @param nodesWithEdges The graphs nodes that has outgoing edges, sink and source excluded.
      */
     public Graph(HashMap<Node, LinkedList<Edge>> nodesWithEdges) {
         this.nodesWithEdges = nodesWithEdges;
+        printGraph();
 
         // Check if graph is bipartit
         if (isBipartite()) {
@@ -55,6 +60,9 @@ public class Graph {
                     }
                 }
             }
+
+            maxFlowFordFulkersson();
+            printMaximumMatching();
             // Not bipartite
         } else {
             System.out.println("The graph is not bipartite!\n");
@@ -62,13 +70,13 @@ public class Graph {
     }
 
     /**
-     *
+     * Prints the content of the graph to the console, source and sink nodes excluded.
      */
-    public void printGraph() {
+    private void printGraph() {
         System.out.println("-- Printing graph --");
         for (Map.Entry<Node, LinkedList<Edge>> entry : nodesWithEdges.entrySet()) {
             for (Edge edge : entry.getValue()) {
-                if (edge.getFromNode().getName() != "source" && edge.getToNode().getName() != "sink") {
+                if (!edge.getFromNode().equals(source) && !edge.getToNode().equals(sink)) {
                     System.out.println(edge);
                 }
             }
@@ -77,14 +85,14 @@ public class Graph {
     }
 
     /**
-     *
+     * Prints the maximum matching of the graph, source and sink nodes excluded.
      */
-    public void printMaximumMatching(){
+    private void printMaximumMatching(){
         LinkedList<Edge> list = getEdgesWithFlow();
         System.out.println("-- Maximum matching --");
         int totalEdges=0;
         for (Edge edge : list) {
-            if (edge.getFromNode().getName() != "source" && edge.getToNode().getName() != "sink") {
+            if (!edge.getFromNode().equals(source) && edge.getToNode().equals(sink)) {
                 System.out.println(edge);
                 totalEdges++;
             }
@@ -94,18 +102,17 @@ public class Graph {
     }
 
     /**
-     *
-     * @return
+     * Checks whether or not the graph is bipartite
+     * by making sure no toNodes are connected to toNodes and vice versa.
+     * @return True if the graph is bipartite, otherwise false.
      */
     private boolean isBipartite() {
         LinkedList<Node> allNodes = new LinkedList<>();
 
-        // Loopa igenom hashmap
         for (Map.Entry<Node, LinkedList<Edge>> entry : nodesWithEdges.entrySet()) {
             allNodes.add(entry.getKey());
         }
 
-        // J�mf�r nod-values
         for (Map.Entry<Node, LinkedList<Edge>> entry : nodesWithEdges.entrySet()) {
             for (Edge e : entry.getValue()) {
                 if (allNodes.contains(e.getToNode())) {
@@ -118,9 +125,9 @@ public class Graph {
     }
 
     /**
-     *
-     * @param path
-     * @param flow
+     * Adds the provided flow to the path.
+     * @param path The path to add flow to.
+     * @param flow The flow to be added to the path.
      */
     public void addFlowToPath(LinkedList<Edge> path, int flow) {
         for (Edge edge : path) {
@@ -141,22 +148,24 @@ public class Graph {
     }
 
     /**
-     *
-     * @param edge
+     * Adds the provided edge to its origin node, provided that the node exists.
+     * If the node doesn't exists, creates a new entry in nodesWithEdges with the edge's origin node.
+     * @param edge The edge to be added.
      */
     private void addEdge(Edge edge) {
         if (nodesWithEdges.containsKey(edge.getFromNode())) {
             nodesWithEdges.get(edge.getFromNode()).add(edge);
         } else {
-            LinkedList<Edge> l = new LinkedList<Edge>();
+            LinkedList<Edge> l = new LinkedList<>();
             l.add(edge);
             nodesWithEdges.put(edge.getFromNode(), l);
         }
     }
 
     /**
-     *
-     * @return
+     * Creates a new graph, links it with the original graphs' source and sink,
+     * and adds the original graphs residual edges to it.
+     * @return The graph's residual graph.
      */
     public Graph getResidualGraph() {
         Graph g = new Graph();
@@ -177,8 +186,8 @@ public class Graph {
     }
 
     /**
-     *
-     * @return
+     * Returns all edges with a flow greater than 0.
+     * @return All edges with a flow greater than 0.
      */
     public LinkedList<Edge> getEdgesWithFlow() {
         LinkedList<Edge> edgeList = new LinkedList<Edge>();
@@ -192,10 +201,10 @@ public class Graph {
     }
 
     /**
-     *
-     * @param source
-     * @param sink
-     * @return
+     * Find the augmenting path between the provided source and sink nodes.
+     * @param source The source node.
+     * @param sink The sink node.
+     * @return The augmenteing path between tha provided start and sink nodes.
      */
     public LinkedList<Edge> findAugmentingPath(Node source, Node sink) {
         LinkedList<Node> visitedNodes = new LinkedList<>();
@@ -205,12 +214,12 @@ public class Graph {
     }
 
     /**
-     *
-     * @param current
-     * @param sink
-     * @param visitedNodes
-     * @param edgesInPath
-     * @return
+     * Find the augmenting path between two nodes by recursively calling itself until it has reached the sink node.
+     * @param current The current node in the loop.
+     * @param sink The target node.
+     * @param visitedNodes A list of visited nodes.
+     * @param edgesInPath A list of edges in the augmenting path.
+     * @return True if sink is reached, otherwise false.
      */
     private boolean findAugmentingPath(Node current, Node sink, LinkedList<Node> visitedNodes, LinkedList<Edge> edgesInPath) {
         visitedNodes.add(current);
@@ -234,7 +243,7 @@ public class Graph {
     }
 
     /**
-     *
+     * Sets all the graphs' edges to 0.
      */
     public void setAllEdgesToZero() {
         for (Map.Entry<Node, LinkedList<Edge>> entry : nodesWithEdges.entrySet()) {
@@ -246,7 +255,7 @@ public class Graph {
 
 
     /**
-     *
+     * Runs the Ford Fulkerson algorithm on the graph.
      */
     public void maxFlowFordFulkersson(){
         setAllEdgesToZero();
@@ -257,7 +266,11 @@ public class Graph {
         LinkedList<Edge> edgesInAugmentingPath = residualGraph.findAugmentingPath(source, sink);
 
         int minflow = Integer.MAX_VALUE;
+
+        // Runs while there's an augmenting path
         while (edgesInAugmentingPath.size() > 0) {
+
+            // Find the augmenting path's minimal flow
             for (Edge e : edgesInAugmentingPath) {
                 if (e.getCapacity() < minflow) {
                     minflow = e.getCapacity();
@@ -271,40 +284,40 @@ public class Graph {
     }
 
     /**
-     *
-     * @return
+     * Returns a hashmap with all nodes that has outgoing edges.
+     * @return A hashmap with all nodes that has outgoing edges.
      */
     public HashMap<Node, LinkedList<Edge>> getNodesWithEdges() {
         return nodesWithEdges;
     }
 
     /**
-     *
-     * @return
+     * Returns the graph's sink node.
+     * @return The graph's sink node.
      */
     public Node getSink() {
         return sink;
     }
 
     /**
-     *
-     * @return
+     * Returns the graph's source node.
+     * @return The graph's source node.
      */
     public Node getSource() {
         return source;
     }
 
     /**
-     *
-     * @param source
+     * Sets the graph's source node to the provided node.
+     * @param source The node to be set as the graph's source node.
      */
     public void setSource(Node source) {
         this.source = source;
     }
 
     /**
-     *
-     * @param sink
+     * Sets the graph's sink node to the provided node.
+     * @param sink The node to be set as the graph's sink node.
      */
     public void setSink(Node sink) {
         this.sink = sink;
