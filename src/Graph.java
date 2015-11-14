@@ -92,7 +92,7 @@ public class Graph {
         System.out.println("-- Maximum matching --");
         int totalEdges=0;
         for (Edge edge : list) {
-            if (!edge.getFromNode().equals(source) && edge.getToNode().equals(sink)) {
+            if (!edge.getFromNode().equals(source) && !edge.getToNode().equals(sink)) {
                 System.out.println(edge);
                 totalEdges++;
             }
